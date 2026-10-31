@@ -1,0 +1,37 @@
+name: ResumeForge
+description: Version a compiled resume PDF and generate a JSON manifest.
+
+inputs:
+  pdf_file:
+    description: Path to the compiled PDF, relative to the workspace or absolute.
+    required: false
+    default: resume.pdf
+
+  output_dir:
+    description: Directory where the versioned PDF and latest.json are generated.
+    required: false
+    default: public
+
+outputs:
+  pdf_path:
+    description: Absolute path to the generated versioned PDF.
+    value: ${{ steps.build.outputs.pdf_path }}
+
+  version:
+    description: Generated resume version identifier.
+    value: ${{ steps.build.outputs.version }}
+
+  site_dir:
+    description: Absolute path to the output directory.
+    value: ${{ steps.build.outputs.site_dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Version resume PDF
+      id: build
+      shell: bash
+      run: bash "${{ github.action_path }}/src/build.sh"
+      env:
+        PDF_FILE: ${{ inputs.pdf_file }}
+        OUTPUT_DIR: ${{ inputs.output_dir }}

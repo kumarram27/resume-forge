@@ -1,37 +1,93 @@
-name: ResumeForge
-description: Version a compiled resume PDF and generate a JSON manifest.
+name: 'ResumeForge'
+description: 'Generate a polished PDF resume from a Markdown file and commit it back to your repo.'
+author: 'kumarram27'
+
+branding:
+  icon: 'file-text'
+  color: 'blue'
 
 inputs:
-  pdf_file:
-    description: Path to the compiled PDF, relative to the workspace or absolute.
+  resume_file:
+    description: 'Path to the resume Markdown file (relative to repo root)'
     required: false
-    default: resume.pdf
-
+    default: 'resume.md'
   output_dir:
-    description: Directory where the versioned PDF and latest.json are generated.
+    description: 'Directory where generated files will be written (relative to repo root)'
     required: false
-    default: public
+    default: 'resume-output'
+  template:
+    description: 'Template name to use for rendering'
+    required: false
+    default: 'modern'
+  accent_color:
+    description: 'CSS hex color used for section accents (e.g. #2563eb)'
+    required: false
+    default: '#2563eb'
+  font:
+    description: 'Font family - one of: inter, georgia, source-sans'
+    required: false
+    default: 'inter'
+  versioning:
+    description: 'Also save a timestamped versioned copy in <output_dir>/versions/'
+    required: false
+    default: 'false'
+  commit_output:
+    description: 'Commit and push the generated output back to the repository'
+    required: false
+    default: 'true'
+  github_token:
+    description: 'GitHub token used to push commits'
+    required: false
+    default: ${{ github.token }}
 
 outputs:
   pdf_path:
-    description: Absolute path to the generated versioned PDF.
+    description: 'Repo-relative path to the generated PDF file'
     value: ${{ steps.build.outputs.pdf_path }}
-
   version:
-    description: Generated resume version identifier.
+    description: 'Versioned filename (only set when versioning=true)'
     value: ${{ steps.build.outputs.version }}
 
-  site_dir:
-    description: Absolute path to the output directory.
-    value: ${{ steps.build.outputs.site_dir }}
-
 runs:
-  using: composite
+  using: 'composite'
   steps:
-    - name: Version resume PDF
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install WeasyPrint and dependencies
+      shell: bash
+      run: pip install -r "${{ github.action_path }}/src/requirements.txt"
+
+    - name: Generate resume
       id: build
       shell: bash
-      run: bash "${{ github.action_path }}/src/build.sh"
       env:
-        PDF_FILE: ${{ inputs.pdf_file }}
+        RESUME_FILE: ${{ inputs.resume_file }}
         OUTPUT_DIR: ${{ inputs.output_dir }}
+        TEMPLATE: ${{ inputs.template }}
+        ACCENT_COLOR: ${{ inputs.accent_color }}
+        FONT: ${{ inputs.font }}
+        VERSIONING: ${{ inputs.versioning }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+        GITHUB_SHA: ${{ github.sha }}
+      run: python "${{ github.action_path }}/src/build.py"
+
+    - name: Commit generated output
+      if: inputs.commit_output == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        OUTPUT_DIR: ${{ inputs.output_dir }}
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add "$OUTPUT_DIR/"
+        if git diff --cached --quiet; then
+          echo "No changes to commit - resume output is already up to date."
+        else
+          git commit -m "chore: update resume [skip ci]"
+          git push
+        fi

@@ -1,0 +1,190 @@
+
+:root {
+  --font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --text: #000;
+  --muted: #000;
+  --border: #000;
+}
+
+@page {
+  size: letter;
+  margin: 0.35in 0.5in;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: 9.8pt;
+  line-height: 1.2;
+  color: var(--text);
+  background: #fff;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.resume-header {
+  margin-bottom: 5pt;
+  text-align: center;
+}
+
+.resume-name {
+  font-size: 23pt;
+  line-height: 1.1;
+  font-weight: 700;
+  font-variant: small-caps;
+}
+
+.resume-title {
+  margin-top: 2pt;
+  font-size: 10pt;
+}
+
+.contact-row {
+  margin-top: 2pt;
+  font-size: 8.8pt;
+}
+
+.contact-row > span {
+  display: inline;
+}
+
+.contact-row > span + span::before {
+  content: " | ";
+  white-space: pre;
+}
+
+.section {
+  margin-bottom: 4pt;
+}
+
+.section-heading {
+  font-size: 12pt;
+  font-weight: 700;
+  font-variant: small-caps;
+  padding-bottom: 0;
+  margin-bottom: 2pt;
+  border-bottom: 1px solid var(--border);
+  page-break-after: avoid;
+}
+
+.entry {
+  margin-bottom: 3pt;
+}
+
+.entry-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6pt;
+}
+
+.entry-heading strong {
+  font-size: 9.8pt;
+  font-weight: 700;
+}
+
+.date {
+  font-size: 9pt;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.entry-subheading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 8pt;
+  font-size: 9.2pt;
+  margin-top: 0;
+}
+
+.entry-subheading > span + span::before {
+  content: "";
+}
+
+ul {
+  padding-left: 15pt;
+  margin: 1pt 0 0;
+  list-style-type: disc;
+}
+
+li {
+  padding-left: 1pt;
+  margin-bottom: 1pt;
+  font-size: 9pt;
+  line-height: 1.15;
+}
+
+.section p {
+  font-size: 9.2pt;
+}
+
+.skill-row {
+  margin-bottom: 0;
+  font-size: 9pt;
+  line-height: 1.15;
+}
+
+.skill-row strong {
+  font-weight: 700;
+}
+
+.project-tech {
+  margin-top: 1pt;
+  font-size: 9pt;
+}
+
+.project-link {
+  margin-top: 1pt;
+  font-size: 9pt;
+}
+
+.cert-entry {
+  margin-bottom: 3pt;
+  font-size: 9.5pt;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .section-heading {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .entry-heading {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .entry {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  a {
+    color: inherit;
+  }
+}

@@ -1,0 +1,59 @@
+# .github/workflows/resume.yml
+#
+# ResumeForge - automatically generate a PDF resume on every push to main
+# when resume.md changes, then commit the result back to the repository.
+#
+# Copy this file to .github/workflows/resume.yml in your repo and adjust
+# the inputs below to match your setup.
+
+name: Build Resume
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'resume.md'
+
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-resume:
+    name: Generate PDF
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to push the commit back
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Required so git push works from within the action
+          persist-credentials: true
+
+      - name: Generate resume PDF
+        uses: kumarram27/resume-forge@v1
+        with:
+          # Path to your Markdown resume (relative to repo root)
+          resume_file: resume.md
+
+          # Where to write the generated PDF (relative to repo root)
+          output_dir: resume-output
+
+          # Visual options
+          template: modern
+          accent_color: '#2563eb'   # any CSS hex color
+          font: inter               # inter | georgia | source-sans
+
+          # Set to 'true' to also save a timestamped versioned copy in
+          # resume-output/versions/
+          versioning: 'false'
+
+          # Set to 'false' if you want to handle the git commit yourself
+          commit_output: 'true'
+
+          # The default github.token is sufficient for same-repo pushes
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
